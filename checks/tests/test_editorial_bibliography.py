@@ -1,4 +1,4 @@
-"""The note, its data-driven entry and both PDF directions disappear together."""
+"""Editorial notes use data-driven entries and reciprocal PDF links."""
 from pathlib import Path
 import shutil
 import subprocess
@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class EditorialBibliography(unittest.TestCase):
-    def test_data_backlinks_and_no_notes_edition(self):
+    def test_data_citations_and_backlinks(self):
         original = (ROOT / 'editorial.bib').read_bytes()
         with tempfile.TemporaryDirectory(prefix='kirillov-editorial-',
                                          dir='/tmp') as temporary:
@@ -29,25 +29,21 @@ class EditorialBibliography(unittest.TestCase):
                 '#set page(numbering: "1")\n'
                 'Основной текст.#ed-note[Контрольное упоминание: '
                 '@bib:Gardner1995, § 3.]\n'
-                '#if editorial-notes {\n'
-                '  pagebreak()\n'
-                '  include "content/81-editorial-bibliography.typ"\n'
-                '}\n')
+                '#pagebreak()\n'
+                '#include "content/81-editorial-bibliography.typ"\n')
 
-            def compile_pdf(name, notes=True):
+            def compile_pdf(name):
                 output = root / name
                 command = ['typst', 'compile', '--root', str(root),
                            '--ignore-system-fonts', '--font-path',
                            str(root / 'assets/fonts')]
-                if not notes:
-                    command += ['--input', 'editorial-notes=off']
                 result = subprocess.run(command + [str(source), str(output)],
                                         capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 self.assertEqual(result.stderr, '')
                 return fitz.open(output)
 
-            with compile_pdf('with.pdf') as document:
+            with compile_pdf('sample.pdf') as document:
                 self.assertGreaterEqual(len(document), 2)
                 note = document[0].search_for('Контрольное упоминание:')[0]
                 targets = [(page, hits[0]) for page in document
@@ -81,15 +77,6 @@ class EditorialBibliography(unittest.TestCase):
                                for page in document
                                for link in page.get_links()])
 
-            with compile_pdf('without.pdf', notes=False) as document:
-                self.assertEqual(len(document), 1)
-                text = document[0].get_text()
-                self.assertIn('Основной текст.', text)
-                self.assertNotIn('Контрольное', text)
-                self.assertNotIn('Редакционная литература', text)
-                self.assertNotIn('Gardner', text)
-                self.assertNotIn('Прим. ред.', text)
-                self.assertEqual(document[0].get_links(), [])
         self.assertEqual((ROOT / 'editorial.bib').read_bytes(), original)
 
 

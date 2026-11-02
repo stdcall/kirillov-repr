@@ -38,13 +38,9 @@ def stage(root=ROOT):
     return value
 
 
-def typst_inputs(root=ROOT, *, notes=True):
+def typst_inputs(root=ROOT):
     """`--input` arguments of every typst/tinymist run of this book."""
-    args = ['--input', 'stage='+stage(root)]
-    if not notes:
-        # Editorial notes (#ed-note) switched off: the no-notes edition.
-        args += ['--input', 'editorial-notes=off']
-    return args
+    return ['--input', 'stage='+stage(root)]
 
 
 def cache_path(root=ROOT):
@@ -116,7 +112,7 @@ def tests():
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=[
-        'fmt', 'lint', 'build', 'build-no-notes', 'check', 'test',
+        'fmt', 'lint', 'build', 'check', 'test',
         'corrections', 'clean', 'editor-prepare', 'editor-finish'])
     parser.add_argument('--force', action='store_true',
                         help='rebuild even when the PDF is current')
@@ -156,18 +152,12 @@ def main():
     if command == 'corrections':
         build_corrections()
         return
-    if command == 'build-no-notes':
-        build(force=args.force, notes=False)
-        return
     build(force=args.force or command == 'check',
           thorough=command == 'check')
     if command == 'check':
         tests()
         run([sys.executable, 'scripts/check_lsp.py'])
         build_corrections()
-        # The no-notes edition must build as well: a label or a reference
-        # target inside an editorial note would vanish with the note.
-        build(force=True, notes=False)
 
 
 if __name__ == '__main__':

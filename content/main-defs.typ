@@ -92,9 +92,8 @@
     sort: sort,
   ))<notation-mark>]
 }
-#let editorial-notes = sys.inputs.at("editorial-notes", default: "on") != "off"
 #let editorial-note-counter = counter("editorial-note")
-#let ed-note(body) = if editorial-notes {
+#let ed-note(body) = {
   editorial-note-counter.step()
   context {
     footnote(numbering: _ => (

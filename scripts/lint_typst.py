@@ -1172,7 +1172,7 @@ LABELLED = '''{
 }'''
 
 
-def evaluate(root=ROOT, *, notes=True, labels=None):
+def evaluate(root=ROOT, *, labels=None):
     """The evaluated document: headings, displays and all metadata, and for
     `labels` (the labels written in the chapter files) the records they
     reach (`labelled`).
@@ -1187,7 +1187,7 @@ def evaluate(root=ROOT, *, notes=True, labels=None):
         expression = (head + ',\n  labelled: '
                       + LABELLED.replace('LABELS', names) + ',\n)')
     result = subprocess.run(
-        ['typst', 'eval', *typst_inputs(root, notes=notes), expression,
+        ['typst', 'eval', *typst_inputs(root), expression,
          '--in', settings(root)['entry'], '--format', 'json'],
         cwd=root, env=tool_env(root), capture_output=True, text=True)
     return result, (json.loads(result.stdout) if result.returncode == 0

@@ -9,7 +9,7 @@ default: build
 build:
     {{python}} scripts/project.py build
 
-# CI gate: format, lint, PDF links/layout, tests, corrections, no-notes PDF.
+# CI gate: format, lint, PDF links/layout, tests and corrections.
 check:
     {{python}} scripts/project.py check
 
@@ -28,10 +28,6 @@ test:
 # The reader's list of corrections: build/kirillov-repr.corrections.pdf
 corrections:
     {{python}} scripts/project.py corrections
-
-# The book without editorial notes: build/kirillov-repr.no-notes.pdf
-build-no-notes:
-    {{python}} scripts/project.py build-no-notes
 
 # Remove build/ and the build cache (`cache` in config/project.json).
 clean:

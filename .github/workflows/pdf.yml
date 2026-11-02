@@ -43,12 +43,13 @@ jobs:
           with open(os.environ['GITHUB_PATH'], 'a') as stream:
               stream.write(str(target)+'\n')
       - name: Check and build
+        env:
+          PYTHONUNBUFFERED: '1'
         run: uv run --locked python scripts/project.py check
       - name: Checksums of the published PDFs
         working-directory: build
         run: |
-          sha256sum kirillov-repr.pdf kirillov-repr.no-notes.pdf \
-            kirillov-repr.corrections.pdf \
+          sha256sum kirillov-repr.pdf kirillov-repr.corrections.pdf \
             > SHA256SUMS
           cat SHA256SUMS
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -56,7 +57,6 @@ jobs:
           name: kirillov-repr-pdfs
           path: |
             build/kirillov-repr.pdf
-            build/kirillov-repr.no-notes.pdf
             build/kirillov-repr.corrections.pdf
             build/SHA256SUMS
           if-no-files-found: error
@@ -101,7 +101,7 @@ jobs:
           TITLE: Кириллов, Элементы теории представлений
         run: |
           if [[ -f SHA256SUMS ]]; then sha256sum --check SHA256SUMS; fi
-          sha256sum -- *.pdf > SHA256SUMS
+          sha256sum kirillov-repr.pdf kirillov-repr.corrections.pdf > SHA256SUMS
           date=$(date -u +%F)
           tag="$date.$BUILD"
           latest=false
@@ -113,4 +113,5 @@ jobs:
               --title "$TITLE · $date · build $BUILD" \
               --notes "Built on $date (UTC) from commit $SOURCE_SHA."
           fi
-          gh release upload "$tag" ./*.pdf SHA256SUMS --clobber
+          gh release upload "$tag" kirillov-repr.pdf \
+            kirillov-repr.corrections.pdf SHA256SUMS --clobber

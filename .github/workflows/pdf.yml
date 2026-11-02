@@ -45,7 +45,14 @@ jobs:
       - name: Check and build
         env:
           PYTHONUNBUFFERED: '1'
-        run: uv run --locked python scripts/project.py check
+        run: |
+          while sleep 15; do
+            free -m
+            ps -eo pid,ppid,rss,comm --sort=-rss | head -n 8
+          done &
+          monitor=$!
+          trap 'kill "$monitor" 2>/dev/null || true' EXIT
+          uv run --locked python scripts/project.py check
       - name: Checksums of the published PDFs
         working-directory: build
         run: |

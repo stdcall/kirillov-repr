@@ -1,6 +1,6 @@
 # Сборка и соглашения исходников
 
-Typst 0.15.1, Typstyle 0.15.1, Tinymist 0.15.8. Сборка: `just build`,
+Typst 0.15.1, Typstyle 0.15.1, Tinymist 0.15.10. Сборка: `just build`,
 проверки: `just check`, форматирование: `just fmt`. Все шрифты поставляются
 с лицензиями в assets/fonts; системные шрифты не используются.
 

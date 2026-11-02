@@ -2,12 +2,12 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Onishchik–Vinberg: PDF",
+      "label": "Kirillov: PDF",
       "dependsOrder": "sequence",
       "dependsOn": [
-        "Onishchik–Vinberg: prepare export",
-        "Onishchik–Vinberg: export (Tinymist)",
-        "Onishchik–Vinberg: validate PDF"
+        "Kirillov: prepare export",
+        "Kirillov: export (Tinymist)",
+        "Kirillov: validate PDF"
       ],
       "group": {
         "kind": "build",
@@ -16,7 +16,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: prepare export",
+      "label": "Kirillov: prepare export",
       "type": "process",
       "command": "uv",
       "args": [
@@ -32,7 +32,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: export (Tinymist)",
+      "label": "Kirillov: export (Tinymist)",
       "type": "typst",
       "command": "export",
       "export": {
@@ -43,7 +43,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: validate PDF",
+      "label": "Kirillov: validate PDF",
       "type": "process",
       "command": "uv",
       "args": [
@@ -59,7 +59,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: check",
+      "label": "Kirillov: check",
       "type": "process",
       "command": "uv",
       "args": [
@@ -75,7 +75,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: lint",
+      "label": "Kirillov: lint",
       "type": "process",
       "command": "uv",
       "args": [
@@ -91,23 +91,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: PDF without editorial notes",
-      "type": "process",
-      "command": "uv",
-      "args": [
-        "run",
-        "--locked",
-        "python",
-        "scripts/project.py",
-        "build-no-notes"
-      ],
-      "options": {
-        "cwd": "${workspaceFolder}"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Onishchik–Vinberg: corrections",
+      "label": "Kirillov: corrections",
       "type": "process",
       "command": "uv",
       "args": [
@@ -123,7 +107,7 @@
       "problemMatcher": []
     },
     {
-      "label": "Onishchik–Vinberg: format",
+      "label": "Kirillov: format",
       "type": "process",
       "command": "uv",
       "args": [

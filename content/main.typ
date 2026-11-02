@@ -57,6 +57,5 @@
 
 #include "79-history.typ"
 #include "80-bibliography.typ"
-#import "main-defs.typ": editorial-notes
-#if editorial-notes { include "81-editorial-bibliography.typ" }
+#include "81-editorial-bibliography.typ"
 #include "90-index.typ"

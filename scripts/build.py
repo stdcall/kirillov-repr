@@ -1,5 +1,5 @@
-"""Build the book, its no-notes edition and the corrections sheet, and check
-every PDF before it replaces the previous one.
+"""Build the book and the corrections sheet, and check every PDF before it
+replaces the previous one.
 
 Bookmarks keep the reader's zoom: each outline destination is rewritten to
 `[page /XYZ left top null]`. `left = null` would keep the horizontal
@@ -32,7 +32,7 @@ from pypdf import PdfReader, PdfWriter
 from pypdf.generic import ArrayObject, FloatObject, NameObject, NullObject
 from check_links import check_hint_links, check_links, set_link_descriptions
 from check_whitespace import check_whitespace
-from lint_typst import (lint, input_hashes, evaluate, tool_versions,
+from lint_typst import (lint, input_hashes, tool_versions,
                         unresolved_references, write_unresolved, from_roman)
 from project import settings, stage, tool_env, cache_path, typst_inputs
 
@@ -325,10 +325,8 @@ def normalize_outlines(raw, output, *, label, book=True, references=()):
             'viewer_zoom_test': 'not performed; PDF objects validated'}
 
 
-def output_path(notes=True):
-    output = ROOT/settings()['output']
-    return output if notes else output.with_name(output.stem +
-                                                 '.no-notes.pdf')
+def output_path():
+    return ROOT/settings()['output']
 
 
 def ensure_lint(fingerprint):
@@ -343,19 +341,18 @@ def ensure_lint(fingerprint):
         raise SystemExit('Lint failed; PDF was not replaced.')
 
 
-def build(force=False, thorough=False, exported=None, notes=True):
-    """Build the book (`notes=False`: the edition without editorial notes)."""
+def build(force=False, thorough=False, exported=None):
+    """Build and validate the book."""
     cache = cache_path(ROOT)
     cache.mkdir(parents=True, exist_ok=True)
-    variant = '' if notes else '.no-notes'
-    output = output_path(notes)
+    output = output_path()
     # A fresh clone has no build/ yet (it is ignored by Git); the
     # intermediates are in the cache, not there.
     output.parent.mkdir(parents=True, exist_ok=True)
     current_stage = stage()
     fingerprint = {'sources': input_hashes(ROOT), 'tools': tool_versions(),
                    'stage': current_stage}
-    state_path = cache/f'build-state{variant}.json'
+    state_path = cache/'build-state.json'
     if not force and exported is None and state_path.exists() \
             and output.exists():
         state = json.loads(state_path.read_text())
@@ -365,11 +362,11 @@ def build(force=False, thorough=False, exported=None, notes=True):
             return
     ensure_lint(fingerprint)
     start = time.perf_counter()
-    raw = cache/f'book{variant}-raw.pdf'
+    raw = cache/'book-raw.pdf'
     if exported is None:
-        result = run(['typst', 'compile', *typst_inputs(notes=notes),
+        result = run(['typst', 'compile', *typst_inputs(),
                       settings()['entry'], str(raw)])
-        (cache/f'typst{variant}.log').write_text(result.stdout+result.stderr)
+        (cache/'typst.log').write_text(result.stdout+result.stderr)
     else:
         if not exported.is_file():
             raise RuntimeError('Tinymist produced no PDF at '+str(exported)
@@ -378,13 +375,8 @@ def build(force=False, thorough=False, exported=None, notes=True):
     raw_reader = PdfReader(raw)
     assert '/StructTreeRoot' in raw_reader.trailer['/Root'], \
         'PDF accessibility tags missing'
-    if notes:
-        # The lint evaluated exactly these inputs a moment ago.
-        document = json.loads((cache/'document.json').read_text())
-    else:
-        result, document = evaluate(ROOT, notes=False)
-        if document is None:
-            raise RuntimeError('typst eval failed:\n' + result.stderr)
+    # The lint evaluated exactly these inputs a moment ago.
+    document = json.loads((cache/'document.json').read_text())
     metadata = [x['value'] for x in document['metadata']
                 if isinstance(x['value'], dict)]
     misplaced = [x for x in metadata if x.get('kind') == 'footnote-placement'
@@ -396,7 +388,7 @@ def build(force=False, thorough=False, exported=None, notes=True):
     if current_stage == 'final' and unresolved['count']:
         raise SystemExit('Unresolved references in the final stage: '
                          + ', '.join(t['target'] for t in unresolved['targets']))
-    staged = cache/f'book{variant}-checked.pdf'
+    staged = cache/'book-checked.pdf'
     report = normalize_outlines(raw, staged, label=output.name,
                                 references=references)
     links = check_links(staged, references)
@@ -407,23 +399,22 @@ def build(force=False, thorough=False, exported=None, notes=True):
     report['source_input_sha256'] = fingerprint['sources']
     report['tools'] = fingerprint['tools']
     report['stage'] = current_stage
-    report['editorial_notes'] = notes
     report['unresolved_references'] = unresolved['count']
     if thorough:
         whitespace = check_whitespace(staged, report['bookmarks'])
-        (cache/f'whitespace-report{variant}.json').write_text(
+        (cache/'whitespace-report.json').write_text(
             json.dumps(whitespace, indent=2)+'\n')
         if whitespace['status'] != 'passed':
             print('Layout advisory (does not fail the build): bottom gaps on '
                   'PDF pages ' + str(whitespace['pages_requiring_review'])
-                  + '; see ' + str(cache/f'whitespace-report{variant}.json'))
+                  + '; see ' + str(cache/'whitespace-report.json'))
     assert fingerprint['sources'] == input_hashes(ROOT), \
         'Sources changed during build'
     shutil.move(staged, output)
     raw.unlink()
-    (cache/f'pdf-report{variant}.json').write_text(
+    (cache/'pdf-report.json').write_text(
         json.dumps(report, ensure_ascii=False, indent=2)+'\n')
-    (cache/f'internal-links{variant}.json').write_text(
+    (cache/'internal-links.json').write_text(
         json.dumps(links, ensure_ascii=False, indent=2)+'\n')
     state_path.write_text(json.dumps({
         'fingerprint': fingerprint,
@@ -437,7 +428,7 @@ def build(force=False, thorough=False, exported=None, notes=True):
                'unresolved_references': unresolved['count'],
                'seconds': round(time.perf_counter()-start, 2)}
     print(json.dumps(summary))
-    if notes and unresolved['count']:
+    if unresolved['count']:
         _, path = write_unresolved(ROOT, document)
         print(f'{unresolved["count"]} unresolved references to '
               f'{len(unresolved["targets"])} targets ({current_stage}; '

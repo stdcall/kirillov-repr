@@ -1172,7 +1172,7 @@ LABELLED = '''{
 }'''
 
 
-def evaluate(root=ROOT, *, notes=True, labels=None):
+def evaluate(root=ROOT, *, labels=None):
     """The evaluated document: headings, displays and all metadata, and for
     `labels` (the labels written in the chapter files) the records they
     reach (`labelled`).
@@ -1187,7 +1187,7 @@ def evaluate(root=ROOT, *, notes=True, labels=None):
         expression = (head + ',\n  labelled: '
                       + LABELLED.replace('LABELS', names) + ',\n)')
     result = subprocess.run(
-        ['typst', 'eval', *typst_inputs(root, notes=notes), expression,
+        ['typst', 'eval', *typst_inputs(root), expression,
          '--in', settings(root)['entry'], '--format', 'json'],
         cwd=root, env=tool_env(root), capture_output=True, text=True)
     return result, (json.loads(result.stdout) if result.returncode == 0
@@ -1201,6 +1201,7 @@ def lint(root=ROOT):
     final = current_stage == 'final'
     findings = []
     hashes = input_hashes(root)
+    print('Lint: checking tool versions', flush=True)
     versions = tool_versions(root)
     upstream = []
     inputs = typst_inputs(root)
@@ -1215,6 +1216,7 @@ def lint(root=ROOT):
                              'message': f'Missing {cmd[0]}; install with '
                                         'brew install tinymist typstyle'})
             continue
+        print(f'Lint: running {cmd[0]}', flush=True)
         checked = subprocess.run(cmd, cwd=root, env=tool_env(root),
                                  capture_output=True, text=True, timeout=300)
         output = checked.stdout + checked.stderr
@@ -1257,6 +1259,7 @@ def lint(root=ROOT):
                 static_labels[name] = (path, line)
     for listed in exceptions.values():
         findings.extend(listed.unused())
+    print('Lint: evaluating the document', flush=True)
     result, data = evaluate(root, labels=sorted(static_labels))
     if result.returncode or result.stderr.strip():
         findings.append({'rule': 'T000', 'path': 'content/main.typ',

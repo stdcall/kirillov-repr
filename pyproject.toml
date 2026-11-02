@@ -1,0 +1,13 @@
+[project]
+name = "kirillov-repr"
+version = "1.0.0"
+description = "Build and validate the digital setting of A. A. Kirillov, Elements of the Theory of Representations (1978)"
+requires-python = ">=3.14,<3.15"
+dependencies = [
+    "pypdf==6.14.2",
+    "PyMuPDF==1.27.2.3",
+    "Pillow==12.3.0",
+]
+
+[tool.uv]
+package = false

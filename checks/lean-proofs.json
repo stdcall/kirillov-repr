@@ -1,0 +1,42 @@
+[
+  {
+    "file": "checks/lean/KirillovRepr/OrderReflexivity.lean",
+    "declarations": [
+      "KirillovRepr.OrderReflexivity.transitive",
+      "KirillovRepr.OrderReflexivity.antisymmetric",
+      "KirillovRepr.OrderReflexivity.printed_linear_empty",
+      "KirillovRepr.OrderReflexivity.every_printed_linear_subset_bounded",
+      "KirillovRepr.OrderReflexivity.no_maximal_element",
+      "KirillovRepr.OrderReflexivity.not_reflexive"
+    ],
+    "book": "§ 1, 1.1: определение отношения порядка и следующая формулировка леммы Цорна. StrictGreater x y означает x>y на NN, PrintedLinear повторяет условие R∪R⁻¹=Y×Y.",
+    "limitations": "Проверен контрпример к отсутствию рефлексивности. Не формализованы аксиома выбора, лемма Цорна и их эквивалентность.",
+    "passages": [
+      "def:partial-order"
+    ]
+  },
+  {
+    "file": "checks/lean/KirillovRepr/QuotientFactorization.lean",
+    "declarations": [
+      "KirillovRepr.QuotientFactorization.constant_on_fibers_of_factorization",
+      "KirillovRepr.QuotientFactorization.factorization_exists_unique"
+    ],
+    "book": "§ 1, 1.1: существование и единственность фактор-отображения. p:X→Q — каноническая сюръекция на классы; f постоянно на её слоях. FactorsThrough означает g∘p=f.",
+    "limitations": "Доказана универсальная факторизация для произвольной сюръекции множеств. Не формализовано построение множества классов отношения эквивалентности и топологическая непрерывность.",
+    "passages": [
+      "def:quotient-factor-map"
+    ]
+  },
+  {
+    "file": "checks/lean/KirillovRepr/InitialUniqueness.lean",
+    "declarations": [
+      "KirillovRepr.InitialUniqueness.initial_inverse_maps",
+      "KirillovRepr.InitialUniqueness.empty_initial",
+      "KirillovRepr.InitialUniqueness.unit_final",
+      "KirillovRepr.InitialUniqueness.no_inverse_empty_unit"
+    ],
+    "book": "§ 1, 1.2: изоморфность двух отталкивающих универсальных объектов. Заданы Hom, единицы и композиции; каждый endomorphism initial-объекта единственен.",
+    "limitations": "Проверена обратимость уникальных морфизмов между двумя initial-объектами. Terminal-вариант получается дуальностью, но отдельно не формализован. Empty и Unit показывают, что типы универсальности смешивать нельзя; формализация всех категорий и функторов не проводится.",
+    "passages": ["def:universal-object-uniqueness"]
+  }
+]

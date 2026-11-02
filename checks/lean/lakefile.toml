@@ -1,0 +1,6 @@
+name = "KirillovRepr"
+version = "0.1.0"
+defaultTargets = ["KirillovRepr"]
+
+[[lean_lib]]
+name = "KirillovRepr"
